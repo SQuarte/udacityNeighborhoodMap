@@ -5,7 +5,7 @@
 </head>
 
 <body>
-    <div class="container-fluid opened">
+    <div id="main-app-container" class="container-fluid" data-bind="css: {opened: isPanelOpen}">
         <nav id="left-panel">
             <div class="container-fluid">
                 <div class="row">
@@ -19,20 +19,21 @@
                     </div>
                 </div>
                 <div class="row">
-                	<ul>
-                		<li>place1</li>
-                		<li>place2</li>
-                		<li>place3</li>
-                	</ul>
+                    <ul id="concerts" data-bind="foreach: concerts">
+                        <li class="concert-item" data-bind="text: band + ' / ' + date"></li>
+                    </ul>
                 </div>
             </div>
         </nav>
         <div class="content-wrapper">
             <header class="container-fluid">
                 <div class="row">
-                    <div class="col-md-12">
-                        <span id="show-menu-button" class="glyphicon glyphicon-menu-hamburger pull-left" aria-hidden="true"></span>
-                        <h4 class="text-center">Concert Tracker</h4>
+                    <div class="col-md-1">
+                        <span id="show-menu-button" class="glyphicon glyphicon-menu-hamburger pull-left" aria-hidden="true" data-bind="click: togglePanel"></span>
+                    </div>
+                    <div class="col-md-112">
+                        <h4 class="text-center">
+                        Concert Tracker</h4>
                     </div>
                 </div>
             </header>

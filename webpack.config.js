@@ -6,7 +6,7 @@ module.exports = {
     entry: [
         'webpack-dev-server/client?http://localhost:9000',
         'webpack/hot/only-dev-server',
-        './src/index.js'
+        './src/js/index.js'
     ],
     output: {
         filename: 'bundle.js',
@@ -15,6 +15,13 @@ module.exports = {
     },
     module: {
         rules: [{
+            test: /\.js$/,
+            loader: "babel-loader",
+            query: {
+                presets: [require.resolve('babel-preset-es2015')]
+            },
+            exclude: /node_modules/
+        }, {
             test: /\.css$/,
             use: ['style-loader', 'css-loader']
         }, {
@@ -63,5 +70,8 @@ module.exports = {
         watchContentBase: true,
         port: 9000,
         publicPath: '/'
+    },
+    externals: {
+        'ko': 'ko'
     }
 };

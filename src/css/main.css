@@ -7,11 +7,22 @@
     height: 100%;
 }
 
+#main-app-container {
+    display: flex;
+    flex-wrap: wrap;
+    height: calc(100% - 40px);
+}
 .content-wrapper {
-    margin-left: 250px;
     height: 100%;
     width: 100%;
+    margin-left: 0;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
 }
+
+
 
 #left-panel {
     width: 250px;
@@ -28,9 +39,34 @@
     transition: all 0.5s ease;
 }
 
+#concerts {
+	list-style: none;
+    margin-top: 20px;
+    margin-left: 0px;
+    padding-left: 0px; 
+}
+
+#concerts li {
+	position: relative;
+    cursor: pointer;
+    line-height: 40px;
+    display: inline-block;
+    width: 100%;
+    padding: 10px 15px 10px 30px;
+    transition: all 0.5s ease;
+}
+
+#concerts li:hover {
+    background: #1860A3;
+}
+#left-panel .row {
+	margin-right: 0px;
+    margin-left: 0px;
+}
 header {
     background: #5f0f4e;
     color: #fff;
+    height: 40px;
 }
 
 header .row {
@@ -39,14 +75,16 @@ header .row {
 }
 
 #show-menu-button {
-    margin-left: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
     cursor: pointer;
+    line-height: 40px;
 }
 
 .opened #left-panel {
     -ms-transform: translate(0, 0);
     -webkit-transform: translate(0, 0);
     transform: translate(0, 0);
+}
+
+.opened .content-wrapper {
+    margin-left: 250px;
 }
