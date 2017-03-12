@@ -14,7 +14,14 @@ module.exports = {
         publicPath: '/'
     },
     module: {
-        rules: [{
+        rules: [
+        {
+            test: /\.js$/,
+            exclude: /node_modules/,
+            enforce: "pre",
+            use: {loader:"jshint-loader", options: { camelcase: true, emitErrors: false, failOnHint: false, node:true, esversion: 6 }}
+        },
+        {
             test: /\.js$/,
             loader: "babel-loader",
             query: {

@@ -76,4 +76,4 @@ export var concerts = [{
 	'place' : 'Kosakowo airport, Gdynia, Poland',
 	'lat' : 54.5789946,
 	'lng' : 18.5118747
-}]
+}];
