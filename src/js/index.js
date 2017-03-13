@@ -36,13 +36,14 @@ var ViewModel = function() {
     self.isPanelOpen = ko.observable(true);
     self.searchStr = ko.observable(searchStr);
     self.concerts = ko.observableArray(currentConcerts);
-
+    //show/hide leftpanel
     self.togglePanel = function() {
         self.isPanelOpen(!self.isPanelOpen());
     };
 
 
     self.search = function() {
+    	//we should wait until user stop typing
         debounceSearch();
     };
 
@@ -50,6 +51,7 @@ var ViewModel = function() {
         self.concerts(concerts.filter(function(concert) {
             return concert.band.includes(self.searchStr()) || concert.place.includes(self.searchStr());
         }));
+        //refresh markers on map
         replaceMarkers(self.concerts());
         closeInfoWindow(largeInfoWindow);
         saveSearchStr(self.searchStr());
@@ -62,10 +64,13 @@ var ViewModel = function() {
 };
 ko.applyBindings(new ViewModel());
 
+
+//saving last succesful search string in localStorage to use after refresh page
 function saveSearchStr(searchStr) {
     localStorage.setItem(SAVE_SEARCH_STR, searchStr);
 }
 
+//getting search str from localStorage
 function getSearchStr() {
     var searchStr = localStorage.getItem(SAVE_SEARCH_STR);
     if (searchStr === null) {
@@ -108,7 +113,11 @@ function createMarker(concert) {
     return marker;
 }
 
-
+/*geting markerIcon depending on difference between current date and concertDate;
+red marker - concert will start during this week,
+blue marker - concert will start during this month,
+green marker -concert will start later
+*/
 function getMarkerIcon(concertDate) {
     var currentDate = +new Date();
     concertDate = convertDateToTimestamp(concertDate);
@@ -122,31 +131,47 @@ function getMarkerIcon(concertDate) {
     }
 }
 
+//convert date Str to milliseconds
 function convertDateToTimestamp(concertDate) {
     return new Date(concertDate.split('.').reverse().join('-')).getTime();
 }
 
+
+
+/*
+	refresh markers on map.
+	We pass list of concerts which markers we want to show
+	If markers was created earlier and we want to show its then we just show then,
+	If markers not in list,but on map then we hide it,
+	If marker wasn't created earlier,we create new one and pushing it in markers array
+*/
 function replaceMarkers(concerts) {
     var concertsMap = new Map();
 
+    //creating map for faster checking if we pass concert or not
     concerts.forEach(function(concert) {
         concertsMap.set(concert.id, concert);
     });
 
     markers.forEach(function(marker) {
         if (!concertsMap.has(marker.concertId)) {
+        	//hide marker because we don't pass them in concerts list
             marker.setMap(null);
         } else {
+        	//show marker which we created earlier
             marker.setMap(map);
+            //delete marker from map,so we don't need to create them again
             concertsMap.delete(marker.concertId);
         }
     });
+
+    //creating new markers
     concertsMap.forEach(function(concert) {
         markers.push(createMarker(concert));
     });
 }
 
-
+//Creating infoWindow
 function populateInfoWindow(concert, infoWindow) {
     var marker = markers.find(function(marker) {
         return marker.concertId === concert.id;
@@ -163,6 +188,7 @@ function populateInfoWindow(concert, infoWindow) {
             infoWindow.marker = null;
         });
         marker.setAnimation(google.maps.Animation.BOUNCE);
+        //get street view images for concert place
         var streetViewService = new google.maps.StreetViewService();
         var radius = 50;
         function getStreetView(data, status) {
@@ -185,21 +211,16 @@ function populateInfoWindow(concert, infoWindow) {
         }
         streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
     } else {
+    	//hiding infoWindow if we click on same mrker again
         closeInfoWindow(infoWindow);
     }
 }
-
-
-
-
-
 
 function closeInfoWindow(infoWindow) {
     infoWindow.marker.setAnimation(null);
     infoWindow.marker = null;
     infoWindow.close();
 }
-
 
 function createInfoWindowContent(concert) {
     var template = `<div id="infoWindow"><h4>Band: %bandName%</h4>
@@ -216,6 +237,7 @@ function createInfoWindowContent(concert) {
     if (concert.bandInfo && concert.bandInfo.image[2]['#text']) {
         res = res.replace('%img%', imgTemplate.replace('%bandImg%', concert.bandInfo.image[2]['#text']));
     } else {
+    	//so in response was error, and we haven't received imags
         res = res.replace('%img%', "Can't get image of band");
     }
 
@@ -224,6 +246,7 @@ function createInfoWindowContent(concert) {
 
 
 function getBandInfo(concert) {
+	//check if we received info about band earlier
     if (!concert.bandInfo) {
         $.ajax({
             url: lastFmApiPath,
@@ -235,12 +258,14 @@ function getBandInfo(concert) {
             },
             success: function(data) {
                 if (+data.results['opensearch:totalResults'] > 0) {
+                	//saving info to prevent not necessary requests
                     concert.bandInfo = data.results.artistmatches.artist[0];
                 }
                 populateInfoWindow(concert, largeInfoWindow);
             },
             error: function() {
                 console.error("Can't get info about band");
+                //populate infoWindow with message about error
                 populateInfoWindow(concert, largeInfoWindow);
             }
         });
@@ -248,6 +273,7 @@ function getBandInfo(concert) {
         populateInfoWindow(concert, largeInfoWindow);
     }
 }
+
 
 function centerToMarker(concert) {
     var marker = markers.find(function(marker) {
