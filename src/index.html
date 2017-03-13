@@ -21,7 +21,11 @@
                 </div>
                 <div class="row">
                     <ul id="concerts" data-bind="foreach: concerts">
-                        <li class="concert-item" data-bind="text: band + ' / ' + date, click: $parent.centerToConcert"></li>
+                        <li class="concert-item" data-bind="click: $parent.centerToConcert">
+                            <div class="description-row"><b class="title">Band :</b> <i data-bind="text: band"></i></div>
+                            <div class="description-row"><b class="title">Place :</b> <i data-bind="text: place"></i></div>
+                            <div class="description-row"><b class="title">Date :</b> <i data-bind="text: date"></i></div>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -33,7 +37,7 @@
                         <span id="show-menu-button" class="glyphicon glyphicon-menu-hamburger" aria-hidden="true" data-bind="click: togglePanel"></span>
                     </div>
                     <div id="header-text-container" class="col-xs-11 col-sm-11 col-md-11 col-xs-11">
-                        <h4 class="text-center">
+                        <h4 class="text-center noselect">
                         Concert Tracker</h4>
                     </div>
                 </div>

@@ -12,19 +12,18 @@
     display: block;
     height: 100%;
 }
+
 .content-wrapper {
     height: 100%;
     width: 100%;
     margin-left: 0;
     top: 0;
-    position:absolute;
+    position: absolute;
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
     transition: all 0.5s ease;
 }
-
-
 
 #left-panel {
     width: 250px;
@@ -42,14 +41,15 @@
 }
 
 #concerts {
-	list-style: none;
-    margin-top: 20px;
-    margin-left: 0px;
-    padding-left: 0px; 
+    list-style: none;
+    margin: 20px 0px 0px;
+    padding-left: 0px;
+    height: calc(100% - 60px);
+    overflow: auto;
 }
 
 #concerts li {
-	position: relative;
+    position: relative;
     cursor: pointer;
     line-height: 40px;
     display: inline-block;
@@ -61,10 +61,12 @@
 #concerts li:hover {
     background: #1860A3;
 }
+
 #left-panel .row {
-	margin-right: 0px;
+    margin-right: 0px;
     margin-left: 0px;
 }
+
 header {
     background: #5f0f4e;
     color: #fff;
@@ -93,6 +95,27 @@ header .row {
     margin-left: 250px;
 }
 
-#header-text-container {
+.noselect {
+    cursor: default;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    / -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
+#info-window {
+    width: 400px;
+    height: 400px;
+}
+
+#pano {
+    width: 400px;
+    height: 200px;
+}
+
+
+#placeInfoHeader {
+    margin-top: 20px;
+}

@@ -1,0 +1,24 @@
+@media (max-width: 480px) {
+    .opened #left-panel {
+        -webkit-transform: translate(-250px, 0);
+        -ms-transform: translate(-250px, 0);
+        transform: translate(-250px, 0);
+    }
+    #left-panel {
+        -ms-transform: translate(0, 0);
+        -webkit-transform: translate(0, 0);
+        transform: translate(0, 0);
+    }
+    .opened .content-wrapper {
+        height: 100%;
+        width: 100%;
+        margin-left: 0px;
+    }
+    .content-wrapper {
+        width: calc(100% - 250px);
+        height: calc(100% - 40px);
+        height: 100%;
+        width: 100%;
+        margin-left: 250px;
+    }
+}
