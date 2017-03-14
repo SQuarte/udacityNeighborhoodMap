@@ -6,14 +6,14 @@ import 'bootstrap/dist/css/bootstrap-theme.css';
 import css from '../css/main.css';
 import mobilecss from '../css/mobile.css';
 import { concerts } from './model.js';
+import loadGoogleMapsAPI from 'load-google-maps-api';
 
 var ko = require("knockout");
 const SAVE_SEARCH_STR = 'SAVE_SEARCH_STR';
 var lastFmApiKey = '9ff1cbd1b11a8d927f184d1ff1fe2c36';
 var lastFmApiPath = 'http://ws.audioscrobbler.com/2.0/';
+var googleMapsApiKey = 'AIzaSyDm9nLO6iek_naPFgnyMz1JsJV-TEhLU5k';
 var panelToggler = {};
-var GoogleMapsLoader = require('google-maps');
-GoogleMapsLoader.KEY = 'AIzaSyDm9nLO6iek_naPFgnyMz1JsJV-TEhLU5k';
 var map;
 var markers = [];
 var largeInfoWindow;
@@ -43,7 +43,7 @@ var ViewModel = function() {
 
 
     self.search = function() {
-    	//we should wait until user stop typing
+        //we should wait until user stop typing
         debounceSearch();
     };
 
@@ -81,9 +81,7 @@ function getSearchStr() {
 
 
 
-
-
-GoogleMapsLoader.load(function(google) {
+loadGoogleMapsAPI({ key: googleMapsApiKey }).then((googleMaps) => {
     var marker;
     map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: 59.921985, lng: 30.307700 },
@@ -94,8 +92,9 @@ GoogleMapsLoader.load(function(google) {
         markers.push(createMarker(concert));
     });
     largeInfoWindow = new google.maps.InfoWindow();
+}).catch((err) => {
+    alert("Can't load google maps api:" + err);
 });
-
 
 function createMarker(concert) {
     var marker = new google.maps.Marker({
@@ -155,11 +154,11 @@ function replaceMarkers(concerts) {
 
     markers.forEach(function(marker) {
         if (!concertsMap.has(marker.concertId)) {
-        	//hide marker because we don't pass them in concerts list
-            marker.setMap(null);
+            //hide marker because we don't pass them in concerts list
+            marker.setVisible(false);
         } else {
-        	//show marker which we created earlier
-            marker.setMap(map);
+            //show marker which we created earlier
+            marker.setVisible(true);
             //delete marker from map,so we don't need to create them again
             concertsMap.delete(marker.concertId);
         }
@@ -184,13 +183,16 @@ function populateInfoWindow(concert, infoWindow) {
         infoWindow.setContent(createInfoWindowContent(concert));
         infoWindow.open(map, marker);
         infoWindow.addListener('closeclick', function() {
-            infoWindow.marker.setAnimation(null);
+            if (infoWindow.marker) {
+                infoWindow.marker.setAnimation(null);
+            }
             infoWindow.marker = null;
         });
         marker.setAnimation(google.maps.Animation.BOUNCE);
         //get street view images for concert place
         var streetViewService = new google.maps.StreetViewService();
         var radius = 50;
+
         function getStreetView(data, status) {
             if (status == google.maps.StreetViewStatus.OK) {
                 var nearStreetViewLocation = data.location.latLng;
@@ -211,13 +213,15 @@ function populateInfoWindow(concert, infoWindow) {
         }
         streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
     } else {
-    	//hiding infoWindow if we click on same mrker again
+        //hiding infoWindow if we click on same mrker again
         closeInfoWindow(infoWindow);
     }
 }
 
 function closeInfoWindow(infoWindow) {
-    infoWindow.marker.setAnimation(null);
+    if (infoWindow.marker) {
+        infoWindow.marker.setAnimation(null);
+    }
     infoWindow.marker = null;
     infoWindow.close();
 }
@@ -225,19 +229,23 @@ function closeInfoWindow(infoWindow) {
 function createInfoWindowContent(concert) {
     var template = `<div id="infoWindow"><h4>Band: %bandName%</h4>
 					<div>%img%</div>
-					<h4 id="placeInfoHeader">Place: %place% / Date: %date%</h4>
+					<h4 id="placeInfoHeader" data-bind="text: place">Place: %place%/ Date: %date%</h4>
 					<div id="pano"></div>
 					</div>`;
     var imgTemplate = '<img src=%bandImg%></img>';
+    var concertBand = concert.band || "Band name not defined";
+    var concertPlace = concert.place || "Concert place not defined";
+    var concertDate = concert.date || "Concert date not defined";
 
 
-    var res = template.replace('%bandName%', concert.band)
-        .replace('%place%', concert.place)
-        .replace('%date%', concert.date);
+
+    var res = template.replace('%bandName%', concertBand)
+        .replace('%place%', concertPlace)
+        .replace('%date%', concertDate);
     if (concert.bandInfo && concert.bandInfo.image[2]['#text']) {
         res = res.replace('%img%', imgTemplate.replace('%bandImg%', concert.bandInfo.image[2]['#text']));
     } else {
-    	//so in response was error, and we haven't received imags
+        //so in response was error, and we haven't received imags
         res = res.replace('%img%', "Can't get image of band");
     }
 
@@ -246,7 +254,7 @@ function createInfoWindowContent(concert) {
 
 
 function getBandInfo(concert) {
-	//check if we received info about band earlier
+    //check if we received info about band earlier
     if (!concert.bandInfo) {
         $.ajax({
             url: lastFmApiPath,
@@ -258,7 +266,7 @@ function getBandInfo(concert) {
             },
             success: function(data) {
                 if (+data.results['opensearch:totalResults'] > 0) {
-                	//saving info to prevent not necessary requests
+                    //saving info to prevent not necessary requests
                     concert.bandInfo = data.results.artistmatches.artist[0];
                 }
                 populateInfoWindow(concert, largeInfoWindow);
