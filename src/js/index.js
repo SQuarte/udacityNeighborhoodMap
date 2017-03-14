@@ -205,10 +205,11 @@ function populateInfoWindow(concert, infoWindow) {
                         pitch: 30
                     }
                 };
+				infoWindow.setContent(infoWindow.getContent() + '<div id="pano"></div>');
                 var panorama = new google.maps.StreetViewPanorama(
                     document.getElementById('pano'), panoramaOptions);
             } else {
-                document.getElementById('pano').innerHTML = "No Street View Found";
+				infoWindow.setContent(infoWindow.getContent() + '<div>No Street View Found</div>');
             }
         }
         streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
@@ -230,7 +231,6 @@ function createInfoWindowContent(concert) {
     var template = `<div id="infoWindow"><h4>Band: %bandName%</h4>
 					<div>%img%</div>
 					<h4 id="placeInfoHeader" data-bind="text: place">Place: %place%/ Date: %date%</h4>
-					<div id="pano"></div>
 					</div>`;
     var imgTemplate = '<img src=%bandImg%></img>';
     var concertBand = concert.band || "Band name not defined";
